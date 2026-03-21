@@ -1,0 +1,366 @@
+.poster-app {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+  text-align: left;
+}
+
+.poster-header {
+  margin-bottom: 1.5rem;
+}
+
+.poster-title-page {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0 0 0.35rem;
+  letter-spacing: -0.02em;
+}
+
+.poster-lead {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.poster-field {
+  margin-bottom: 1rem;
+}
+
+.poster-label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 0.35rem;
+  color: var(--text-h);
+}
+
+.poster-file-input,
+.poster-text-input {
+  display: block;
+  width: 100%;
+  max-width: 32rem;
+  box-sizing: border-box;
+  padding: 0.45rem 0.55rem;
+  font: inherit;
+  font-size: 0.95rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text-h);
+}
+
+.poster-controls {
+  display: grid;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+.poster-audio-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.poster-waveform-style-block {
+  margin-bottom: 1rem;
+}
+
+.poster-waveform-style {
+  display: grid;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.poster-waveform-style--pair {
+  margin-top: 0.5rem;
+}
+
+.poster-fieldset {
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--code-bg);
+}
+
+.poster-legend {
+  padding: 0 0.35rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.poster-radio-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 0.65rem;
+}
+
+.poster-radio-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  color: var(--text-h);
+  cursor: pointer;
+}
+
+.poster-field--fieldset-inner {
+  margin-top: 0.25rem;
+}
+
+.poster-gradient-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.poster-label--inline-block {
+  display: block;
+  margin-bottom: 0.35rem;
+}
+
+.poster-text-input--grow {
+  flex: 1;
+  min-width: 8rem;
+  max-width: none;
+}
+
+.poster-select {
+  display: block;
+  width: 100%;
+  max-width: 36rem;
+  box-sizing: border-box;
+  padding: 0.45rem 0.55rem;
+  font: inherit;
+  font-size: 0.95rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text-h);
+}
+
+.poster-style-hint {
+  margin: 0.4rem 0 0;
+  font-size: 0.8rem;
+  color: var(--text);
+  line-height: 1.4;
+  max-width: 36rem;
+}
+
+.poster-field--compact {
+  margin-bottom: 0;
+}
+
+.poster-color-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.poster-color-input {
+  width: 2.75rem;
+  height: 2.25rem;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  background: transparent;
+}
+
+.poster-text-input--narrow {
+  flex: 1;
+  min-width: 6rem;
+  max-width: 12rem;
+}
+
+.poster-range {
+  display: block;
+  width: 100%;
+  max-width: 20rem;
+  margin-top: 0.15rem;
+}
+
+@media (min-width: 560px) {
+  .poster-controls {
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .poster-waveform-style {
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    align-items: end;
+  }
+
+  .poster-waveform-style--pair {
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    align-items: end;
+  }
+}
+
+.poster-banner {
+  padding: 0.65rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.45;
+}
+
+.poster-banner--error {
+  background: rgba(220, 38, 38, 0.12);
+  color: #b91c1c;
+  border: 1px solid rgba(220, 38, 38, 0.35);
+}
+
+@media (prefers-color-scheme: dark) {
+  .poster-banner--error {
+    color: #fca5a5;
+    background: rgba(220, 38, 38, 0.2);
+  }
+}
+
+.poster-banner--loading {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  color: var(--text-h);
+}
+
+.poster-meta {
+  font-size: 0.85rem;
+  color: var(--text);
+  margin: 0 0 0.75rem;
+}
+
+.poster-canvas-wrap {
+  margin: 0.5rem 0 1rem;
+  padding: 0.65rem 0.75rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  width: fit-content;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.poster-waveform-transport {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.poster-transport-effect {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.5rem;
+}
+
+.poster-transport-effect-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-h);
+  margin: 0;
+}
+
+.poster-transport-select {
+  font: inherit;
+  font-size: 0.9rem;
+  padding: 0.3rem 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text-h);
+  min-width: 7rem;
+}
+
+.poster-transport-button {
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.35rem 0.9rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-h);
+  cursor: pointer;
+}
+
+.poster-transport-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.poster-transport-time {
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+.poster-canvas-stack {
+  position: relative;
+  display: inline-block;
+  line-height: 0;
+  vertical-align: top;
+  max-width: 100%;
+}
+
+.poster-canvas {
+  display: block;
+  vertical-align: top;
+  max-width: 100%;
+  height: auto;
+}
+
+.poster-canvas--overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+}
+
+.poster-export {
+  margin-top: 0.5rem;
+}
+
+.poster-button {
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--text-h);
+  color: var(--bg);
+  cursor: pointer;
+}
+
+.poster-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.poster-inline-error {
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+  color: #b91c1c;
+}
+
+@media (prefers-color-scheme: dark) {
+  .poster-inline-error {
+    color: #fca5a5;
+  }
+}

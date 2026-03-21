@@ -1,0 +1,223 @@
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react'
+import type { WaveformData, WaveformVisualStyle } from '../types/poster'
+import type { PlaybackVisualEffectId } from '../types/playbackEffect'
+import type { WaveformStrokeStyle } from '../types/waveformStroke'
+import { drawPlaybackEffects } from '../utils/drawPlaybackEffects'
+import { drawWaveform } from '../utils/drawWaveform'
+
+export const POSTER_CANVAS_WIDTH = 800
+export const POSTER_CANVAS_HEIGHT = 400
+
+type WaveformCanvasProps = {
+  waveformData: WaveformData | null
+  title: string
+  date: string
+  visualStyle: WaveformVisualStyle
+  backgroundColor: string
+  labelColor: string
+  waveformStroke: WaveformStrokeStyle
+  waveformLineWidth?: number
+  barGap?: number
+  barHeightGain?: number
+  playbackEffect: PlaybackVisualEffectId
+  isPlaying: boolean
+  placeholderMessage?: string
+}
+
+function drawPlaceholder(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  message: string,
+) {
+  ctx.fillStyle = '#f0f0f0'
+  ctx.fillRect(0, 0, width, height)
+  ctx.fillStyle = '#666666'
+  ctx.font = '15px system-ui, sans-serif'
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.fillText(message, width / 2, height / 2)
+}
+
+function setupCanvasSize(
+  canvas: HTMLCanvasElement,
+  dpr: number,
+  w: number,
+  h: number,
+): CanvasRenderingContext2D | null {
+  canvas.width = Math.round(w * dpr)
+  canvas.height = Math.round(h * dpr)
+  canvas.style.width = `${w}px`
+  canvas.style.height = `${h}px`
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return null
+  ctx.setTransform(1, 0, 0, 1, 0, 0)
+  ctx.scale(dpr, dpr)
+  return ctx
+}
+
+export const WaveformCanvas = forwardRef<HTMLCanvasElement, WaveformCanvasProps>(
+  function WaveformCanvas(
+    {
+      waveformData,
+      title,
+      date,
+      visualStyle,
+      backgroundColor,
+      labelColor,
+      waveformStroke,
+      waveformLineWidth = 1,
+      barGap = 3,
+      barHeightGain = 1,
+      playbackEffect,
+      isPlaying,
+      placeholderMessage = 'ファイルを選択すると波形が表示されます',
+    },
+    ref,
+  ) {
+    const canvasRef = useRef<HTMLCanvasElement | null>(null)
+    const overlayRef = useRef<HTMLCanvasElement | null>(null)
+    const [animTick, setAnimTick] = useState(0)
+
+    useEffect(() => {
+      if (!isPlaying || playbackEffect !== 'vibration') return
+      let raf = 0
+      const loop = () => {
+        setAnimTick((n) => n + 1)
+        raf = requestAnimationFrame(loop)
+      }
+      raf = requestAnimationFrame(loop)
+      return () => cancelAnimationFrame(raf)
+    }, [isPlaying, playbackEffect])
+
+    const setCanvasRef = useCallback(
+      (node: HTMLCanvasElement | null) => {
+        canvasRef.current = node
+        if (typeof ref === 'function') {
+          ref(node)
+        } else if (ref) {
+          ref.current = node
+        }
+      },
+      [ref],
+    )
+
+    const w = POSTER_CANVAS_WIDTH
+    const h = POSTER_CANVAS_HEIGHT
+    const hasWaveform = Boolean(waveformData?.length)
+
+    useLayoutEffect(() => {
+      const canvas = canvasRef.current
+      if (!canvas) return
+      const dpr = window.devicePixelRatio || 1
+      const ctx = setupCanvasSize(canvas, dpr, w, h)
+      if (!ctx) return
+
+      if (!waveformData?.length) {
+        drawPlaceholder(ctx, w, h, placeholderMessage)
+        return
+      }
+
+      drawWaveform({
+        ctx,
+        width: w,
+        height: h,
+        waveformData,
+        title,
+        date,
+        visualStyle,
+        backgroundColor,
+        labelColor,
+        waveformStroke,
+        waveformLineWidth,
+        barGap,
+        barHeightGain,
+      })
+    }, [
+      w,
+      h,
+      waveformData,
+      title,
+      date,
+      placeholderMessage,
+      visualStyle,
+      backgroundColor,
+      labelColor,
+      waveformStroke,
+      waveformLineWidth,
+      barGap,
+      barHeightGain,
+    ])
+
+    useLayoutEffect(() => {
+      const overlay = overlayRef.current
+      if (!overlay) return
+      const dpr = window.devicePixelRatio || 1
+      const octx = setupCanvasSize(overlay, dpr, w, h)
+      if (!octx) return
+
+      if (!hasWaveform) {
+        octx.clearRect(0, 0, w, h)
+        return
+      }
+
+      octx.clearRect(0, 0, w, h)
+      if (waveformData) {
+        drawPlaybackEffects({
+          ctx: octx,
+          width: w,
+          height: h,
+          waveformData,
+          title,
+          date,
+          visualStyle,
+          waveformLineWidth,
+          barGap,
+          barHeightGain,
+          effect: playbackEffect,
+          isPlaying,
+          nowMs: performance.now(),
+        })
+      }
+    }, [
+      w,
+      h,
+      hasWaveform,
+      waveformData,
+      title,
+      date,
+      visualStyle,
+      waveformLineWidth,
+      barGap,
+      barHeightGain,
+      playbackEffect,
+      isPlaying,
+      animTick,
+    ])
+
+    return (
+      <div className="poster-canvas-stack">
+        <canvas
+          ref={setCanvasRef}
+          className="poster-canvas poster-canvas--main"
+          width={POSTER_CANVAS_WIDTH}
+          height={POSTER_CANVAS_HEIGHT}
+        />
+        <canvas
+          ref={overlayRef}
+          className="poster-canvas poster-canvas--overlay"
+          width={POSTER_CANVAS_WIDTH}
+          height={POSTER_CANVAS_HEIGHT}
+          aria-hidden
+        />
+      </div>
+    )
+  },
+)
