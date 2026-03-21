@@ -7,7 +7,6 @@ import {
   useState,
 } from 'react'
 import type { WaveformData, WaveformVisualStyle } from '../types/poster'
-import type { PlaybackVisualEffectId } from '../types/playbackEffect'
 import type { WaveformStrokeStyle } from '../types/waveformStroke'
 import { drawPlaybackEffects } from '../utils/drawPlaybackEffects'
 import { drawWaveform } from '../utils/drawWaveform'
@@ -26,7 +25,6 @@ type WaveformCanvasProps = {
   waveformLineWidth?: number
   barGap?: number
   barHeightGain?: number
-  playbackEffect: PlaybackVisualEffectId
   isPlaying: boolean
   placeholderMessage?: string
 }
@@ -44,7 +42,8 @@ function drawPlaceholder(
   ctx.fillStyle = g
   ctx.fillRect(0, 0, width, height)
   ctx.fillStyle = '#78716c'
-  ctx.font = '15px system-ui, sans-serif'
+  ctx.font =
+    '15px "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Yu Gothic UI", sans-serif'
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
   ctx.fillText(message, width / 2, height / 2)
@@ -80,7 +79,6 @@ export const WaveformCanvas = forwardRef<HTMLCanvasElement, WaveformCanvasProps>
       waveformLineWidth = 1,
       barGap = 3,
       barHeightGain = 1,
-      playbackEffect,
       isPlaying,
       placeholderMessage = 'ファイルを選択すると波形が表示されます',
     },
@@ -91,7 +89,7 @@ export const WaveformCanvas = forwardRef<HTMLCanvasElement, WaveformCanvasProps>
     const [animTick, setAnimTick] = useState(0)
 
     useEffect(() => {
-      if (!isPlaying || playbackEffect !== 'vibration') return
+      if (!isPlaying) return
       let raf = 0
       const loop = () => {
         setAnimTick((n) => n + 1)
@@ -99,7 +97,7 @@ export const WaveformCanvas = forwardRef<HTMLCanvasElement, WaveformCanvasProps>
       }
       raf = requestAnimationFrame(loop)
       return () => cancelAnimationFrame(raf)
-    }, [isPlaying, playbackEffect])
+    }, [isPlaying])
 
     const setCanvasRef = useCallback(
       (node: HTMLCanvasElement | null) => {
@@ -185,7 +183,6 @@ export const WaveformCanvas = forwardRef<HTMLCanvasElement, WaveformCanvasProps>
           waveformLineWidth,
           barGap,
           barHeightGain,
-          effect: playbackEffect,
           isPlaying,
           nowMs: performance.now(),
         })
@@ -201,7 +198,6 @@ export const WaveformCanvas = forwardRef<HTMLCanvasElement, WaveformCanvasProps>
       waveformLineWidth,
       barGap,
       barHeightGain,
-      playbackEffect,
       isPlaying,
       animTick,
     ])

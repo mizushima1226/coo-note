@@ -10,7 +10,6 @@ import { DesignParametersSheet } from './components/DesignParametersSheet'
 import { useAudioDecoder } from './hooks/useAudioDecoder'
 import { useObjectUrl } from './hooks/useObjectUrl'
 import { useWaveformData } from './hooks/useWaveformData'
-import type { PlaybackVisualEffectId } from './types/playbackEffect'
 import type { WaveformVisualStyle } from './types/poster'
 import type { WaveformFillMode, WaveformStrokeStyle } from './types/waveformStroke'
 import './App.css'
@@ -33,8 +32,6 @@ function App() {
   const [mediaCurrentTime, setMediaCurrentTime] = useState(0)
   const [mediaDuration, setMediaDuration] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
-  const [playbackEffect, setPlaybackEffect] =
-    useState<PlaybackVisualEffectId>('none')
 
   const audioRef = useRef<HTMLAudioElement>(null)
   const objectUrl = useObjectUrl(file)
@@ -142,7 +139,7 @@ function App() {
       {!hasFile ? (
         <div className="poster-splash-layout">
           <header className="poster-header-min poster-header-min--splash">
-            <h1 className="poster-title-page">波形ポスター</h1>
+            <h1 className="poster-title-page">Coo Note</h1>
           </header>
           <div className="poster-splash-body">
             <div className="poster-splash">
@@ -169,7 +166,7 @@ function App() {
           ) : null}
 
           <header className="poster-header-min">
-            <h1 className="poster-title-page">波形ポスター</h1>
+            <h1 className="poster-title-page">Coo Note</h1>
             <p className="poster-lead">
               音声 / 動画から波形を生成し、PNG で保存します。
             </p>
@@ -222,7 +219,6 @@ function App() {
                         waveformLineWidth={waveformLineWidth}
                         barGap={barGap}
                         barHeightGain={barHeightGain}
-                        playbackEffect={playbackEffect}
                         isPlaying={isPlaying}
                         placeholderMessage={canvasPlaceholder}
                       />
@@ -232,13 +228,10 @@ function App() {
                 {objectUrl ? (
                   <div className="poster-transport-fab-wrap">
                     <WaveformPlaybackControls
-                      variant="fab"
                       audioRef={audioRef}
                       currentTime={mediaCurrentTime}
                       duration={mediaDuration}
                       isPlaying={isPlaying}
-                      playbackEffect={playbackEffect}
-                      onPlaybackEffectChange={setPlaybackEffect}
                       disabled={loading}
                     />
                   </div>
@@ -246,28 +239,11 @@ function App() {
               </div>
             </div>
 
-            <div className="poster-stage-bar">
-              {objectUrl ? (
-                <WaveformPlaybackControls
-                  variant="meta"
-                  audioRef={audioRef}
-                  currentTime={mediaCurrentTime}
-                  duration={mediaDuration}
-                  isPlaying={isPlaying}
-                  playbackEffect={playbackEffect}
-                  onPlaybackEffectChange={setPlaybackEffect}
-                  visualStyle={visualStyle}
-                  onVisualStyleChange={handleVisualStyleChange}
-                  disabled={loading}
-                />
-              ) : (
-                <span className="poster-stage-bar-hint">読み込み中…</span>
-              )}
-            </div>
           </section>
 
           <DesignParametersSheet
             visualStyle={visualStyle}
+            onVisualStyleChange={handleVisualStyleChange}
             backgroundColor={backgroundColor}
             onBackgroundColorChange={setBackgroundColor}
             labelColor={labelColor}

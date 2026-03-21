@@ -200,7 +200,7 @@
   font-size: 1.35rem;
   font-weight: 700;
   margin: 0 0 0.35rem;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.015em;
   color: var(--text-h);
 }
 
@@ -274,30 +274,6 @@
   width: fit-content;
   max-width: 100%;
   box-sizing: border-box;
-}
-
-.poster-stage-bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 0.65rem 0.85rem;
-  justify-content: flex-start;
-}
-
-.poster-stage-bar .poster-waveform-transport,
-.poster-stage-bar .poster-waveform-transport--meta {
-  flex: 1 1 14rem;
-  min-width: min(100%, 12rem);
-  margin-bottom: 0;
-}
-
-.poster-stage-bar-hint {
-  flex: 1 1 12rem;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  line-height: 1.4;
-  margin: 0;
-  padding: 0.25rem 0;
 }
 
 /* —— 設定：1枚に集約 —— */
@@ -515,7 +491,7 @@
 .poster-file-pick-title--splash {
   font-size: 1.05rem;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
   color: var(--text-h);
 }
 
@@ -535,8 +511,6 @@
 
 .poster-text-input:focus-visible,
 .poster-select:focus-visible,
-.poster-transport-select:focus-visible,
-.poster-transport-button:focus-visible,
 .poster-button:focus-visible {
   outline: none;
   border-color: var(--accent);
@@ -749,63 +723,6 @@
   background: #f8fafc;
   border-color: var(--border);
   color: var(--text-h);
-}
-
-.poster-waveform-transport {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.55rem 0.75rem;
-}
-
-.poster-transport-effect {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.3rem 0.45rem;
-}
-
-.poster-transport-effect-label {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  margin: 0;
-}
-
-.poster-transport-select {
-  font: inherit;
-  font-size: 0.85rem;
-  padding: 0.35rem 0.5rem;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: #fff;
-  color: var(--text-h);
-  min-width: 6.5rem;
-}
-
-.poster-transport-button {
-  font: inherit;
-  font-size: 0.85rem;
-  font-weight: 600;
-  padding: 0.4rem 0.85rem;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: #fff;
-  color: var(--text-h);
-  cursor: pointer;
-  transition:
-    background 0.12s ease,
-    border-color 0.12s ease;
-}
-
-.poster-transport-button:hover:not(:disabled) {
-  background: var(--code-bg);
-  border-color: #d6d3d1;
-}
-
-.poster-transport-button:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
 }
 
 .poster-transport-time {
@@ -1025,7 +942,7 @@
   margin: 0 0 0.2rem;
   font-size: 1.05rem;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
   text-align: center;
   color: rgba(255, 255, 255, 0.96);
 }
@@ -1052,28 +969,23 @@
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
-  gap: 0.5rem;
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding: 0.15rem 0.15rem 0.35rem;
-  margin: 0 -0.15rem;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
-}
-
-.design-sheet-icon-rail::-webkit-scrollbar {
-  height: 4px;
+  align-items: stretch;
+  width: 100%;
+  box-sizing: border-box;
+  gap: 0.35rem;
+  padding: 0.15rem 0 0.35rem;
+  margin: 0;
 }
 
 .design-sheet-icon-tile {
-  flex: 0 0 auto;
+  flex: 1 1 0;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: flex-start;
   gap: 0.35rem;
-  min-width: 4.25rem;
-  max-width: 4.75rem;
-  padding: 0.5rem 0.35rem 0.45rem;
+  padding: 0.5rem 0.25rem 0.45rem;
   border: none;
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.08);
@@ -1221,6 +1133,23 @@
 .design-sheet .poster-text-input {
   background: rgba(0, 0, 0, 0.35);
   border-color: rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.design-sheet .poster-select {
+  background: rgba(0, 0, 0, 0.35);
+  border-color: rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.design-sheet .poster-select:focus-visible {
+  outline: none;
+  border-color: rgba(167, 139, 250, 0.7);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.35);
+}
+
+.design-sheet .poster-select option {
+  background: #1c1c1f;
   color: rgba(255, 255, 255, 0.95);
 }
 

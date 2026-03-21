@@ -1,15 +1,12 @@
-import type { WaveformVisualStyle } from '../types/poster'
 import type { WaveformFillMode } from '../types/waveformStroke'
 import {
   StylePanelBackground,
-  StylePanelBars,
+  StylePanelGeometry,
   StylePanelLabel,
-  StylePanelStroke,
   StylePanelWaveform,
 } from './waveformStylePanels'
 
 type WaveformStyleControlsProps = {
-  visualStyle: WaveformVisualStyle
   backgroundColor: string
   onBackgroundColorChange: (value: string) => void
   labelColor: string
@@ -35,7 +32,7 @@ type WaveformStyleControlsProps = {
 
 /** 従来の一覧レイアウト（シート以外で使う場合向け） */
 export function WaveformStyleControls(props: WaveformStyleControlsProps) {
-  const { visualStyle, disabled } = props
+  const { disabled } = props
   return (
     <div className="poster-waveform-style-block">
       <div className="poster-waveform-style poster-waveform-style--pair">
@@ -63,21 +60,15 @@ export function WaveformStyleControls(props: WaveformStyleControlsProps) {
         onWaveformGradientAngleDegChange={props.onWaveformGradientAngleDegChange}
         disabled={disabled}
       />
-      <StylePanelStroke
-        visualStyle={visualStyle}
+      <StylePanelGeometry
         waveformLineWidth={props.waveformLineWidth}
         onWaveformLineWidthChange={props.onWaveformLineWidthChange}
+        barGap={props.barGap}
+        onBarGapChange={props.onBarGapChange}
+        barHeightGain={props.barHeightGain}
+        onBarHeightGainChange={props.onBarHeightGainChange}
         disabled={disabled}
       />
-      {visualStyle === 'roundedBars' ? (
-        <StylePanelBars
-          barGap={props.barGap}
-          onBarGapChange={props.onBarGapChange}
-          barHeightGain={props.barHeightGain}
-          onBarHeightGainChange={props.onBarHeightGainChange}
-          disabled={disabled}
-        />
-      ) : null}
     </div>
   )
 }

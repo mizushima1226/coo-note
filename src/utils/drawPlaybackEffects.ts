@@ -1,7 +1,6 @@
 import type { WaveformData, WaveformVisualStyle } from '../types/poster'
-import type { PlaybackVisualEffectId } from '../types/playbackEffect'
 import { downsampleWaveformData } from './downsampleWaveform'
-import { layoutWaveformArea } from './drawWaveform'
+import { layoutWaveformArea, layoutWaveformStrip } from './drawWaveform'
 
 export type DrawPlaybackEffectsOptions = {
   ctx: CanvasRenderingContext2D
@@ -14,7 +13,6 @@ export type DrawPlaybackEffectsOptions = {
   waveformLineWidth: number
   barGap: number
   barHeightGain: number
-  effect: PlaybackVisualEffectId
   isPlaying: boolean
   nowMs: number
 }
@@ -58,20 +56,33 @@ function drawVibratingGhostClassic(
   midY: number,
   halfRange: number,
   data: WaveformData,
+  lineWidth: number,
+  gap: number,
+  heightGain: number,
   isPlaying: boolean,
   nowMs: number,
 ): void {
+  const hMargin = 8
+  const inner = width - 2 * hMargin
+  const { numColumns, left, pitch, columnWidth } = layoutWaveformStrip(width, lineWidth, gap)
+  const bins = downsampleWaveformData(data, numColumns)
+  if (bins.length === 0) return
+
   ctx.lineCap = 'round'
   ctx.lineJoin = 'round'
+  ctx.lineWidth = columnWidth
   ctx.beginPath()
-  const n = data.length
+  const n = bins.length
+  const useStripLayout = n >= numColumns && data.length > numColumns
   for (let i = 0; i < n; i++) {
-    const { min, max } = data[i]!
-    const x = (i / Math.max(1, n - 1)) * (width - 1)
-    const yTop = vibY(midY - max * halfRange, isPlaying, x, width, nowMs)
-    const yBot = vibY(midY - min * halfRange, isPlaying, x, width, nowMs)
-    ctx.moveTo(x, yTop)
-    ctx.lineTo(x, yBot)
+    const { min, max } = bins[i]!
+    const xRaw = useStripLayout
+      ? left + columnWidth / 2 + i * pitch
+      : hMargin + (n === 1 ? inner / 2 : (i / Math.max(1, n - 1)) * inner)
+    const yTop = vibY(midY - max * halfRange * heightGain, isPlaying, xRaw, width, nowMs)
+    const yBot = vibY(midY - min * halfRange * heightGain, isPlaying, xRaw, width, nowMs)
+    ctx.moveTo(xRaw, yTop)
+    ctx.lineTo(xRaw, yBot)
   }
   ctx.stroke()
 }
@@ -82,19 +93,40 @@ function drawVibratingGhostOscilloscope(
   midY: number,
   halfRange: number,
   data: WaveformData,
+  lineWidth: number,
+  gap: number,
+  heightGain: number,
   isPlaying: boolean,
   nowMs: number,
 ): void {
+  const hMargin = 8
+  const inner = width - 2 * hMargin
+  const { numColumns, columnWidth, pitch } = layoutWaveformStrip(width, lineWidth, gap)
+  const count = Math.max(2, numColumns)
+  const totalW = count * columnWidth + (count - 1) * gap
+  const left = (width - totalW) / 2
+  const bins = downsampleWaveformData(data, count)
+  if (bins.length === 0) return
+
   ctx.lineCap = 'butt'
   ctx.lineJoin = 'miter'
   ctx.miterLimit = 2
+  ctx.lineWidth = columnWidth
   ctx.beginPath()
-  const n = data.length
+  const n = bins.length
+  const useStripLayout = n >= count && data.length > count
   for (let i = 0; i < n; i++) {
-    const x = (i / Math.max(1, n - 1)) * (width - 1)
-    const y = vibY(midY - data[i]!.mid * halfRange, isPlaying, x, width, nowMs)
-    if (i === 0) ctx.moveTo(x, y)
-    else ctx.lineTo(x, y)
+    const xRaw = useStripLayout
+      ? left + columnWidth / 2 + i * pitch
+      : hMargin + (n === 1 ? inner / 2 : (i / Math.max(1, n - 1)) * inner)
+    const y = vibY(midY - bins[i]!.mid * halfRange * heightGain, isPlaying, xRaw, width, nowMs)
+    if (i === 0) ctx.moveTo(xRaw, y)
+    else ctx.lineTo(xRaw, y)
+  }
+  if (n === 1) {
+    const xRaw = hMargin + inner / 2
+    const y = vibY(midY - bins[0]!.mid * halfRange * heightGain, isPlaying, xRaw, width, nowMs)
+    ctx.lineTo(xRaw + 0.75, y)
   }
   ctx.stroke()
 }
@@ -138,8 +170,7 @@ function drawVibratingGhostBars(
 }
 
 /**
- * 再生連動エフェクト（オーバーレイ専用・透明背景想定）
- * `effect` に応じて描画。種類追加時は分岐を増やす。
+ * 再生連動の振動オーバーレイ（透明背景想定）
  */
 export function drawPlaybackEffects(opts: DrawPlaybackEffectsOptions): void {
   const {
@@ -153,63 +184,67 @@ export function drawPlaybackEffects(opts: DrawPlaybackEffectsOptions): void {
     waveformLineWidth,
     barGap,
     barHeightGain,
-    effect,
     isPlaying,
     nowMs,
   } = opts
 
   ctx.clearRect(0, 0, width, height)
 
-  if (!isPlaying || effect === 'none') return
+  if (!isPlaying) return
 
-  if (effect === 'vibration') {
-    const { midY, halfRange } = layoutWaveformArea(height, title, date)
+  const { midY, halfRange } = layoutWaveformArea(height, title, date)
 
-    ctx.save()
-    ctx.globalAlpha = 0.26 + 0.1 * Math.sin(nowMs / 90)
-    ctx.strokeStyle = 'rgba(255, 236, 200, 0.92)'
-    ctx.shadowColor = 'rgba(255, 200, 100, 0.75)'
-    ctx.shadowBlur = 14 + 6 * Math.sin(nowMs / 110)
-    ctx.lineWidth = waveformLineWidth * 1.45
+  ctx.save()
+  ctx.globalAlpha = 0.26 + 0.1 * Math.sin(nowMs / 90)
+  ctx.strokeStyle = 'rgba(255, 236, 200, 0.92)'
+  ctx.shadowColor = 'rgba(255, 200, 100, 0.75)'
+  ctx.shadowBlur = 14 + 6 * Math.sin(nowMs / 110)
+  const ghostLineW = waveformLineWidth * 1.45
+  ctx.lineWidth = ghostLineW
 
-    switch (visualStyle) {
-      case 'classic':
-        drawVibratingGhostClassic(
-          ctx,
-          width,
-          midY,
-          halfRange,
-          waveformData,
-          isPlaying,
-          nowMs,
-        )
-        break
-      case 'oscilloscope':
-        drawVibratingGhostOscilloscope(
-          ctx,
-          width,
-          midY,
-          halfRange,
-          waveformData,
-          isPlaying,
-          nowMs,
-        )
-        break
-      case 'roundedBars':
-        drawVibratingGhostBars(
-          ctx,
-          width,
-          midY,
-          halfRange,
-          waveformData,
-          waveformLineWidth,
-          barGap,
-          barHeightGain,
-          isPlaying,
-          nowMs,
-        )
-        break
-    }
-    ctx.restore()
+  switch (visualStyle) {
+    case 'classic':
+      drawVibratingGhostClassic(
+        ctx,
+        width,
+        midY,
+        halfRange,
+        waveformData,
+        ghostLineW,
+        barGap,
+        barHeightGain,
+        isPlaying,
+        nowMs,
+      )
+      break
+    case 'oscilloscope':
+      drawVibratingGhostOscilloscope(
+        ctx,
+        width,
+        midY,
+        halfRange,
+        waveformData,
+        ghostLineW,
+        barGap,
+        barHeightGain,
+        isPlaying,
+        nowMs,
+      )
+      break
+    case 'roundedBars':
+      drawVibratingGhostBars(
+        ctx,
+        width,
+        midY,
+        halfRange,
+        waveformData,
+        waveformLineWidth,
+        barGap,
+        barHeightGain,
+        isPlaying,
+        nowMs,
+      )
+      break
   }
+  ctx.restore()
 }

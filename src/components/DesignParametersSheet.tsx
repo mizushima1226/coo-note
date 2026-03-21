@@ -3,16 +3,16 @@ import type { WaveformVisualStyle } from '../types/poster'
 import type { WaveformFillMode } from '../types/waveformStroke'
 import {
   StylePanelBackground,
-  StylePanelBars,
+  StylePanelGeometry,
   StylePanelLabel,
-  StylePanelStroke,
   StylePanelWaveform,
 } from './waveformStylePanels'
 
-export type DesignParamId = 'background' | 'label' | 'waveform' | 'stroke' | 'bars'
+export type DesignParamId = 'background' | 'label' | 'waveform' | 'geometry'
 
 type DesignParametersSheetProps = {
   visualStyle: WaveformVisualStyle
+  onVisualStyleChange: (value: WaveformVisualStyle) => void
   backgroundColor: string
   onBackgroundColorChange: (value: string) => void
   labelColor: string
@@ -55,15 +55,10 @@ const PARAM_META: Record<
     title: '波形の塗り',
     show: () => true,
   },
-  stroke: {
-    label: '太さ',
-    title: '線・バーの太さ',
+  geometry: {
+    label: '形状',
+    title: 'ビジュアル・太さ・隙間・高さ',
     show: () => true,
-  },
-  bars: {
-    label: 'バー',
-    title: 'バーの隙間・高さ',
-    show: (v) => v === 'roundedBars',
   },
 }
 
@@ -105,21 +100,20 @@ function IconWave() {
   )
 }
 
-function IconStroke() {
+function IconGeometry() {
   return (
     <svg className="design-sheet-icon-svg" viewBox="0 0 24 24" width="28" height="28" aria-hidden>
-      <path d="M5 12h14" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-      <path d="M5 8h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.45" />
-    </svg>
-  )
-}
-
-function IconBars() {
-  return (
-    <svg className="design-sheet-icon-svg" viewBox="0 0 24 24" width="28" height="28" aria-hidden>
-      <rect x="5" y="14" width="3" height="6" rx="0.5" fill="currentColor" />
-      <rect x="10.5" y="10" width="3" height="10" rx="0.5" fill="currentColor" opacity="0.85" />
-      <rect x="16" y="12" width="3" height="8" rx="0.5" fill="currentColor" opacity="0.65" />
+      <path
+        d="M4 18h16"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        opacity="0.45"
+      />
+      <rect x="5.5" y="6" width="2.5" height="9" rx="1" fill="currentColor" opacity="0.9" />
+      <rect x="10.75" y="4" width="2.5" height="11" rx="1" fill="currentColor" />
+      <rect x="16" y="7" width="2.5" height="8" rx="1" fill="currentColor" opacity="0.85" />
     </svg>
   )
 }
@@ -144,11 +138,10 @@ const ICONS: Record<DesignParamId, ReactNode> = {
   background: <IconBackground />,
   label: <IconText />,
   waveform: <IconWave />,
-  stroke: <IconStroke />,
-  bars: <IconBars />,
+  geometry: <IconGeometry />,
 }
 
-const ORDER: DesignParamId[] = ['background', 'label', 'waveform', 'stroke', 'bars']
+const ORDER: DesignParamId[] = ['background', 'label', 'waveform', 'geometry']
 
 export function DesignParametersSheet(props: DesignParametersSheetProps) {
   const { visualStyle, disabled } = props
@@ -169,10 +162,7 @@ export function DesignParametersSheet(props: DesignParametersSheetProps) {
     }
   }, [open])
 
-  const detailParam: DesignParamId | null =
-    active != null && !(active === 'bars' && visualStyle !== 'roundedBars')
-      ? active
-      : null
+  const detailParam: DesignParamId | null = active
 
   useEffect(() => {
     if (!open) return
@@ -228,18 +218,13 @@ export function DesignParametersSheet(props: DesignParametersSheetProps) {
             disabled={disabled}
           />
         )
-      case 'stroke':
+      case 'geometry':
         return (
-          <StylePanelStroke
+          <StylePanelGeometry
             visualStyle={props.visualStyle}
+            onVisualStyleChange={props.onVisualStyleChange}
             waveformLineWidth={props.waveformLineWidth}
             onWaveformLineWidthChange={props.onWaveformLineWidthChange}
-            disabled={disabled}
-          />
-        )
-      case 'bars':
-        return (
-          <StylePanelBars
             barGap={props.barGap}
             onBarGapChange={props.onBarGapChange}
             barHeightGain={props.barHeightGain}

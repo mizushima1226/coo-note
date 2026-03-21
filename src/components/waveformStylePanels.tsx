@@ -1,4 +1,4 @@
-import type { WaveformVisualStyle } from '../types/poster'
+import { WAVEFORM_STYLE_LABELS, type WaveformVisualStyle } from '../types/poster'
 import type { WaveformFillMode } from '../types/waveformStroke'
 import {
   BAR_GAP_MAX,
@@ -239,63 +239,82 @@ export function StylePanelWaveform({
   )
 }
 
-type StrokePanelProps = ColorProps & {
-  visualStyle: WaveformVisualStyle
+const GEOMETRY_VISUAL_OPTIONS = (
+  Object.entries(WAVEFORM_STYLE_LABELS) as [WaveformVisualStyle, string][]
+).map(([value, label]) => ({ value, label }))
+
+type GeometryPanelProps = ColorProps & {
+  visualStyle?: WaveformVisualStyle
+  onVisualStyleChange?: (value: WaveformVisualStyle) => void
   waveformLineWidth: number
   onWaveformLineWidthChange: (value: number) => void
-}
-
-export function StylePanelStroke({
-  visualStyle,
-  waveformLineWidth,
-  onWaveformLineWidthChange,
-  disabled,
-}: StrokePanelProps) {
-  const lineLabel =
-    visualStyle === 'roundedBars'
-      ? `バーの太さ（${waveformLineWidth}px）`
-      : `線の太さ（${waveformLineWidth}px）`
-
-  return (
-    <div className="design-panel design-panel--pad">
-      <p className="design-panel-title">{lineLabel}</p>
-      <input
-        id="design-waveform-width"
-        type="range"
-        min={LINE_WIDTH_MIN}
-        max={LINE_WIDTH_MAX}
-        step={LINE_WIDTH_STEP}
-        value={waveformLineWidth}
-        disabled={disabled}
-        className="poster-range"
-        onChange={(e) => onWaveformLineWidthChange(Number(e.target.value))}
-      />
-    </div>
-  )
-}
-
-type BarsPanelProps = ColorProps & {
   barGap: number
   onBarGapChange: (value: number) => void
   barHeightGain: number
   onBarHeightGainChange: (value: number) => void
 }
 
-export function StylePanelBars({
+/** ビジュアル種類・太さ・隙間・高さ */
+export function StylePanelGeometry({
+  visualStyle,
+  onVisualStyleChange,
+  waveformLineWidth,
+  onWaveformLineWidthChange,
   barGap,
   onBarGapChange,
   barHeightGain,
   onBarHeightGainChange,
   disabled,
-}: BarsPanelProps) {
+}: GeometryPanelProps) {
+  const showVisual =
+    visualStyle != null && onVisualStyleChange != null
+
   return (
     <div className="design-panel design-panel--pad">
+      {showVisual ? (
+        <div className="poster-field poster-field--compact">
+          <label className="poster-label" htmlFor="design-geom-visual">
+            ビジュアル
+          </label>
+          <select
+            id="design-geom-visual"
+            className="poster-select"
+            value={visualStyle}
+            disabled={disabled}
+            onChange={(e) =>
+              onVisualStyleChange(e.target.value as WaveformVisualStyle)
+            }
+          >
+            {GEOMETRY_VISUAL_OPTIONS.map(({ value, label }) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </div>
+      ) : null}
       <div className="poster-field poster-field--compact">
-        <label className="poster-label" htmlFor="design-bar-gap">
-          バー間の隙間（{barGap}px）
+        <label className="poster-label" htmlFor="design-geom-width">
+          太さ（{waveformLineWidth}px）
         </label>
         <input
-          id="design-bar-gap"
+          id="design-geom-width"
+          type="range"
+          min={LINE_WIDTH_MIN}
+          max={LINE_WIDTH_MAX}
+          step={LINE_WIDTH_STEP}
+          value={waveformLineWidth}
+          disabled={disabled}
+          className="poster-range"
+          onChange={(e) => onWaveformLineWidthChange(Number(e.target.value))}
+        />
+      </div>
+      <div className="poster-field poster-field--compact">
+        <label className="poster-label" htmlFor="design-geom-gap">
+          隙間（{barGap}px）
+        </label>
+        <input
+          id="design-geom-gap"
           type="range"
           min={BAR_GAP_MIN}
           max={BAR_GAP_MAX}
@@ -307,11 +326,11 @@ export function StylePanelBars({
         />
       </div>
       <div className="poster-field poster-field--compact">
-        <label className="poster-label" htmlFor="design-bar-height">
-          バーの高さ（感度 {Math.round(barHeightGain * 100)}%）
+        <label className="poster-label" htmlFor="design-geom-height">
+          高さ（感度 {Math.round(barHeightGain * 100)}%）
         </label>
         <input
-          id="design-bar-height"
+          id="design-geom-height"
           type="range"
           min={BAR_HEIGHT_GAIN_MIN}
           max={BAR_HEIGHT_GAIN_MAX}
