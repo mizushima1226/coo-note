@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { WAVEFORM_STYLE_LABELS, type WaveformVisualStyle } from '../types/poster'
 import type { WaveformFillMode } from '../types/waveformStroke'
 import {
@@ -46,6 +47,168 @@ function sectionTitleClass(v: PanelVariant) {
   return v === 'sheet'
     ? 'mb-2 text-[0.72rem] font-bold uppercase tracking-[0.04em] text-white/55'
     : 'mb-2 text-[0.72rem] font-bold uppercase tracking-[0.04em] text-stone-500'
+}
+
+function RichChoiceRadio({
+  variant,
+  name,
+  optionValue,
+  checked,
+  onChange,
+  disabled,
+  title,
+  description,
+  children,
+}: {
+  variant: PanelVariant
+  name: string
+  optionValue: string
+  checked: boolean
+  onChange: () => void
+  disabled?: boolean
+  title: string
+  description: string
+  children: ReactNode
+}) {
+  const shell =
+    variant === 'sheet'
+      ? 'border-white/12 bg-white/[0.05] hover:border-white/18 hover:bg-white/[0.08] peer-checked:border-violet-400 peer-checked:bg-violet-500/15 peer-checked:shadow-[inset_0_0_0_1px_rgba(167,139,250,0.35)]'
+      : 'border-stone-200 bg-white hover:border-stone-300 hover:bg-stone-50/90 peer-checked:border-violet-500 peer-checked:bg-violet-50 peer-checked:shadow-[0_1px_2px_rgba(124,58,237,0.08)]'
+
+  const titleClass = variant === 'sheet' ? 'text-white/95' : 'text-stone-900'
+  const descClass = variant === 'sheet' ? 'text-white/48' : 'text-stone-500'
+
+  return (
+    <label
+      className={`flex h-full min-h-0 min-w-0 flex-col ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+    >
+      <input
+        type="radio"
+        name={name}
+        value={optionValue}
+        checked={checked}
+        disabled={disabled}
+        onChange={onChange}
+        className="peer sr-only"
+      />
+      <span
+        className={`flex min-h-[5.5rem] flex-1 flex-col rounded-xl border-2 p-2.5 transition-[border-color,background-color,box-shadow,transform] duration-150 peer-active:scale-[0.99] peer-focus-visible:outline-none peer-focus-visible:ring-[3px] peer-focus-visible:ring-violet-500/30 peer-disabled:opacity-45 peer-disabled:peer-active:scale-100 sm:p-3 ${shell}`}
+      >
+        <span className="mb-2 flex h-11 shrink-0 items-center justify-center [&_svg]:shrink-0">
+          {children}
+        </span>
+        <span className={`shrink-0 text-[0.82rem] font-semibold tracking-tight ${titleClass}`}>
+          {title}
+        </span>
+        <span
+          className={`mt-1 min-h-0 flex-1 text-[0.68rem] leading-snug ${descClass}`}
+        >
+          {description}
+        </span>
+      </span>
+    </label>
+  )
+}
+
+function FillModePreviewSolid({ color }: { color: string }) {
+  return (
+    <div
+      className="h-9 w-[3.25rem] rounded-lg shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] ring-1 ring-black/5"
+      style={{ backgroundColor: normalizeHexColor(color) }}
+      aria-hidden
+    />
+  )
+}
+
+function FillModePreviewGradient({
+  angleDeg,
+  start,
+  end,
+}: {
+  angleDeg: number
+  start: string
+  end: string
+}) {
+  return (
+    <div
+      className="h-9 w-[3.25rem] rounded-lg shadow-[inset_0_1px_2px_rgba(0,0,0,0.12)] ring-1 ring-black/5"
+      style={{
+        backgroundImage: `linear-gradient(${angleDeg}deg, ${normalizeHexColor(start)}, ${normalizeHexColor(end)})`,
+      }}
+      aria-hidden
+    />
+  )
+}
+
+function VisualPreviewBars({ variant }: { variant: PanelVariant }) {
+  const fill = variant === 'sheet' ? '#c4b5fd' : '#7c3aed'
+  const muted = variant === 'sheet' ? 'rgba(196,181,253,0.35)' : 'rgba(124,58,237,0.25)'
+  return (
+    <svg width="52" height="36" viewBox="0 0 52 36" aria-hidden>
+      <rect x="4" y="14" width="7" height="16" rx="3.5" fill={fill} opacity="0.85" />
+      <rect x="15" y="8" width="7" height="22" rx="3.5" fill={fill} />
+      <rect x="26" y="11" width="7" height="19" rx="3.5" fill={fill} opacity="0.92" />
+      <rect x="37" y="6" width="7" height="24" rx="3.5" fill={muted} />
+    </svg>
+  )
+}
+
+function VisualPreviewOscilloscope() {
+  return (
+    <svg width="52" height="36" viewBox="0 0 52 36" aria-hidden>
+      <rect x="2" y="4" width="48" height="28" rx="5" fill="#0c0c0e" />
+      <rect x="2" y="4" width="48" height="28" rx="5" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
+      <path
+        d="M6 18 Q11 10 16 18 T26 18 T36 12 T46 18"
+        fill="none"
+        stroke="#4ade80"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        opacity="0.95"
+      />
+      <path
+        d="M6 22 Q12 26 18 22 T30 22 T42 24"
+        fill="none"
+        stroke="#22d3ee"
+        strokeWidth="1"
+        strokeLinecap="round"
+        opacity="0.35"
+      />
+    </svg>
+  )
+}
+
+function VisualPreviewClassic({ variant }: { variant: PanelVariant }) {
+  const stroke = variant === 'sheet' ? '#e9d5ff' : '#6d28d9'
+  const fill = variant === 'sheet' ? 'rgba(167,139,250,0.2)' : 'rgba(124,58,237,0.12)'
+  return (
+    <svg width="52" height="36" viewBox="0 0 52 36" aria-hidden>
+      <path
+        d="M4 24 Q14 8 26 16 T48 10 L48 30 L4 30 Z"
+        fill={fill}
+        stroke={stroke}
+        strokeWidth="1.25"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+const VISUAL_STYLE_ORDER: WaveformVisualStyle[] = [
+  'roundedBars',
+  'oscilloscope',
+  'classic',
+]
+
+const VISUAL_STYLE_HINT: Record<WaveformVisualStyle, string> = {
+  roundedBars: '角丸バーで音量を立体的に表現します',
+  oscilloscope: 'CRT 風の発光ラインで波形を表示します',
+  classic: 'なめらかなラインと塗りのクラシックな見た目です',
+}
+
+const FILL_MODE_HINT: Record<WaveformFillMode, string> = {
+  solid: '波形全体をひとつの色で塗ります',
+  linearGradient: '2色の線形グラデーションで奥行きを出します',
 }
 
 type BackgroundPanelProps = ColorProps & {
@@ -177,34 +340,38 @@ export function StylePanelWaveform({
           波形の塗り
         </legend>
         <div
-          className="mb-2 flex flex-wrap gap-[0.85rem]"
-          role="group"
+          className="mb-3 grid grid-cols-2 items-stretch gap-2"
+          role="radiogroup"
           aria-label="波形の塗り方"
         >
-          <label
-            className={`inline-flex cursor-pointer items-center gap-1.5 text-[0.88rem] ${labelClass(variant)}`}
+          <RichChoiceRadio
+            variant={variant}
+            name="design-waveform-fill"
+            optionValue="solid"
+            checked={waveformFillMode === 'solid'}
+            onChange={() => onWaveformFillModeChange('solid')}
+            disabled={disabled}
+            title="単色"
+            description={FILL_MODE_HINT.solid}
           >
-            <input
-              type="radio"
-              name="design-waveform-fill"
-              checked={waveformFillMode === 'solid'}
-              disabled={disabled}
-              onChange={() => onWaveformFillModeChange('solid')}
-            />
-            単色
-          </label>
-          <label
-            className={`inline-flex cursor-pointer items-center gap-1.5 text-[0.88rem] ${labelClass(variant)}`}
+            <FillModePreviewSolid color={waveformColor} />
+          </RichChoiceRadio>
+          <RichChoiceRadio
+            variant={variant}
+            name="design-waveform-fill"
+            optionValue="linearGradient"
+            checked={waveformFillMode === 'linearGradient'}
+            onChange={() => onWaveformFillModeChange('linearGradient')}
+            disabled={disabled}
+            title="グラデーション"
+            description={FILL_MODE_HINT.linearGradient}
           >
-            <input
-              type="radio"
-              name="design-waveform-fill"
-              checked={waveformFillMode === 'linearGradient'}
-              disabled={disabled}
-              onChange={() => onWaveformFillModeChange('linearGradient')}
+            <FillModePreviewGradient
+              angleDeg={waveformGradientAngleDeg}
+              start={waveformGradientStart}
+              end={waveformGradientEnd}
             />
-            グラデーション
-          </label>
+          </RichChoiceRadio>
         </div>
 
         {waveformFillMode === 'solid' ? (
@@ -323,10 +490,6 @@ export function StylePanelWaveform({
   )
 }
 
-const GEOMETRY_VISUAL_OPTIONS = (
-  Object.entries(WAVEFORM_STYLE_LABELS) as [WaveformVisualStyle, string][]
-).map(([value, label]) => ({ value, label }))
-
 type GeometryPanelProps = Omit<ColorProps, 'omitSectionTitle'> & {
   visualStyle?: WaveformVisualStyle
   onVisualStyleChange?: (value: WaveformVisualStyle) => void
@@ -356,28 +519,40 @@ export function StylePanelGeometry({
   return (
     <div className="m-0 py-[0.35rem] pb-2">
       {showVisual ? (
-        <div className="mb-0">
-          <label
+        <div className="mb-3">
+          <span
+            id="design-geom-visual-label"
             className={`mb-1.5 block text-[0.82rem] font-semibold ${labelClass(variant)}`}
-            htmlFor="design-geom-visual"
           >
             ビジュアル
-          </label>
-          <select
-            id="design-geom-visual"
-            className={textInputClass(variant)}
-            value={visualStyle}
-            disabled={disabled}
-            onChange={(e) =>
-              onVisualStyleChange(e.target.value as WaveformVisualStyle)
-            }
+          </span>
+          <div
+            className="grid grid-cols-3 items-stretch gap-2"
+            role="radiogroup"
+            aria-labelledby="design-geom-visual-label"
           >
-            {GEOMETRY_VISUAL_OPTIONS.map(({ value, label }) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
+            {VISUAL_STYLE_ORDER.map((value) => (
+              <RichChoiceRadio
+                key={value}
+                variant={variant}
+                name="design-geom-visual"
+                optionValue={value}
+                checked={visualStyle === value}
+                onChange={() => onVisualStyleChange?.(value)}
+                disabled={disabled}
+                title={WAVEFORM_STYLE_LABELS[value]}
+                description={VISUAL_STYLE_HINT[value]}
+              >
+                {value === 'roundedBars' ? (
+                  <VisualPreviewBars variant={variant} />
+                ) : value === 'oscilloscope' ? (
+                  <VisualPreviewOscilloscope />
+                ) : (
+                  <VisualPreviewClassic variant={variant} />
+                )}
+              </RichChoiceRadio>
             ))}
-          </select>
+          </div>
         </div>
       ) : null}
       <div className="mb-0">
