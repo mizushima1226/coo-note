@@ -6,7 +6,7 @@ import {
   WaveformCanvas,
 } from './components/WaveformCanvas'
 import { WaveformPlaybackControls } from './components/WaveformPlaybackControls'
-import { WaveformStyleControls } from './components/WaveformStyleControls'
+import { DesignParametersSheet } from './components/DesignParametersSheet'
 import { useAudioDecoder } from './hooks/useAudioDecoder'
 import { useObjectUrl } from './hooks/useObjectUrl'
 import { useWaveformData } from './hooks/useWaveformData'
@@ -266,35 +266,30 @@ function App() {
             </div>
           </section>
 
-          <section className="poster-settings" aria-label="設定">
-            <div className="poster-settings-group">
-              <h2 className="poster-settings-group-title">デザイン</h2>
-              <WaveformStyleControls
-                visualStyle={visualStyle}
-                backgroundColor={backgroundColor}
-                onBackgroundColorChange={setBackgroundColor}
-                labelColor={labelColor}
-                onLabelColorChange={setLabelColor}
-                waveformFillMode={waveformFillMode}
-                onWaveformFillModeChange={setWaveformFillMode}
-                waveformColor={waveformColor}
-                onWaveformColorChange={setWaveformColor}
-                waveformGradientStart={waveformGradientStart}
-                onWaveformGradientStartChange={setWaveformGradientStart}
-                waveformGradientEnd={waveformGradientEnd}
-                onWaveformGradientEndChange={setWaveformGradientEnd}
-                waveformGradientAngleDeg={waveformGradientAngleDeg}
-                onWaveformGradientAngleDegChange={setWaveformGradientAngleDeg}
-                waveformLineWidth={waveformLineWidth}
-                onWaveformLineWidthChange={setWaveformLineWidth}
-                barGap={barGap}
-                onBarGapChange={setBarGap}
-                barHeightGain={barHeightGain}
-                onBarHeightGainChange={setBarHeightGain}
-                disabled={loading}
-              />
-            </div>
-          </section>
+          <DesignParametersSheet
+            visualStyle={visualStyle}
+            backgroundColor={backgroundColor}
+            onBackgroundColorChange={setBackgroundColor}
+            labelColor={labelColor}
+            onLabelColorChange={setLabelColor}
+            waveformFillMode={waveformFillMode}
+            onWaveformFillModeChange={setWaveformFillMode}
+            waveformColor={waveformColor}
+            onWaveformColorChange={setWaveformColor}
+            waveformGradientStart={waveformGradientStart}
+            onWaveformGradientStartChange={setWaveformGradientStart}
+            waveformGradientEnd={waveformGradientEnd}
+            onWaveformGradientEndChange={setWaveformGradientEnd}
+            waveformGradientAngleDeg={waveformGradientAngleDeg}
+            onWaveformGradientAngleDegChange={setWaveformGradientAngleDeg}
+            waveformLineWidth={waveformLineWidth}
+            onWaveformLineWidthChange={setWaveformLineWidth}
+            barGap={barGap}
+            onBarGapChange={setBarGap}
+            barHeightGain={barHeightGain}
+            onBarHeightGainChange={setBarHeightGain}
+            disabled={loading}
+          />
         </div>
       )}
     </div>

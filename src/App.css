@@ -895,3 +895,355 @@
   font-size: 0.82rem;
   color: #991b1b;
 }
+
+/* —— デザインパラメータ（浮遊ガラスモーダル） —— */
+.design-params-trigger {
+  position: fixed;
+  z-index: 60;
+  left: max(0.85rem, env(safe-area-inset-left, 0px));
+  bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  width: 3rem;
+  height: 3rem;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--text-h);
+  box-shadow:
+    0 4px 18px rgba(0, 0, 0, 0.14),
+    0 0 0 1px rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease;
+}
+
+.design-params-trigger:hover:not(:disabled) {
+  box-shadow:
+    0 6px 22px rgba(0, 0, 0, 0.16),
+    0 0 0 1px rgba(0, 0, 0, 0.07);
+}
+
+.design-params-trigger:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.design-params-trigger:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.design-params-trigger:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 3px var(--accent-soft),
+    0 4px 18px rgba(0, 0, 0, 0.14);
+}
+
+.design-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  /* ぼかしなし・ほぼ透明：背面の波形プレビューでパラメータ反映を確認しやすくする */
+  background: transparent;
+  animation: design-sheet-fade-in 0.28s ease;
+}
+
+@keyframes design-sheet-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.design-sheet {
+  position: fixed;
+  z-index: 101;
+  left: max(1rem, env(safe-area-inset-left, 0px));
+  right: max(1rem, env(safe-area-inset-right, 0px));
+  bottom: max(1.1rem, env(safe-area-inset-bottom, 0px));
+  top: auto;
+  max-width: 520px;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  flex-direction: column;
+  max-height: min(34vh, 15rem);
+  min-height: min(30vh, 12.5rem);
+  padding: 0.65rem 1rem 1rem;
+  border-radius: 22px;
+  /* ガラス用の backdrop-filter は使わず不透明寄りに（背面をぼかさない） */
+  background: rgba(18, 18, 20, 0.92);
+  color: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 28px 90px rgba(0, 0, 0, 0.55),
+    0 12px 36px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  animation: design-sheet-float-in 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes design-sheet-float-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.design-sheet--detail {
+  max-height: min(54vh, 29rem);
+  min-height: min(38vh, 15.5rem);
+}
+
+.design-sheet-handle {
+  align-self: center;
+  width: 2.35rem;
+  height: 4px;
+  margin-bottom: 0.55rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.22);
+  flex-shrink: 0;
+}
+
+.design-sheet-heading {
+  margin: 0 0 0.2rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.96);
+}
+
+.design-sheet-heading--panel {
+  flex: 1;
+  margin: 0;
+  font-size: 0.95rem;
+  text-align: center;
+  padding-right: 2.5rem;
+  box-sizing: border-box;
+  color: rgba(255, 255, 255, 0.96);
+}
+
+.design-sheet-sub {
+  margin: 0 0 0.75rem;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.52);
+  text-align: center;
+  line-height: 1.35;
+}
+
+.design-sheet-icon-rail {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.15rem 0.15rem 0.35rem;
+  margin: 0 -0.15rem;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.design-sheet-icon-rail::-webkit-scrollbar {
+  height: 4px;
+}
+
+.design-sheet-icon-tile {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 4.25rem;
+  max-width: 4.75rem;
+  padding: 0.5rem 0.35rem 0.45rem;
+  border: none;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.92);
+  cursor: pointer;
+  font: inherit;
+  transition:
+    background 0.12s ease,
+    transform 0.12s ease;
+}
+
+.design-sheet-icon-tile:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.design-sheet-icon-tile:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.design-sheet-icon-tile:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.design-sheet-icon-tile:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.55);
+}
+
+.design-sheet-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 11px;
+  background: rgba(0, 0, 0, 0.28);
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.design-sheet-icon-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.55);
+  text-align: center;
+  line-height: 1.2;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.design-sheet-icon-svg {
+  display: block;
+}
+
+.design-sheet-panel-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.5rem;
+  flex-shrink: 0;
+  position: relative;
+  min-height: 2.25rem;
+}
+
+.design-sheet-back {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  margin: 0;
+  padding: 0.35rem 0.5rem;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #c4b5fd;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.design-sheet-back:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.design-sheet-back:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.45);
+}
+
+.design-sheet-panel-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  margin: 0 -0.15rem;
+  padding: 0 0.15rem 0.25rem;
+}
+
+/* シート見出しと重複するパネル内タイトルを隠す */
+.design-sheet-panel-scroll .design-panel-title {
+  display: none;
+}
+
+.design-panel {
+  margin: 0;
+}
+
+.design-panel--pad {
+  padding: 0.35rem 0 0.5rem;
+}
+
+.design-panel-title {
+  margin: 0 0 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.design-panel-fieldset {
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* ダークガラス上のフォーム（モーダル内のみ） */
+.design-sheet .poster-label,
+.design-sheet .poster-legend,
+.design-sheet .poster-radio-label {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.design-sheet .poster-fieldset {
+  background: rgba(0, 0, 0, 0.22);
+  border-color: rgba(255, 255, 255, 0.1);
+  border-style: solid;
+}
+
+.design-sheet .poster-text-input {
+  background: rgba(0, 0, 0, 0.35);
+  border-color: rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.design-sheet .poster-text-input::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.design-sheet .poster-text-input:focus-visible {
+  border-color: rgba(167, 139, 250, 0.7);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.35);
+}
+
+.design-sheet .poster-color-input {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.design-sheet .poster-range {
+  accent-color: #c4b5fd;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .design-sheet-backdrop,
+  .design-sheet {
+    animation: none;
+  }
+}
