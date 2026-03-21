@@ -1,4 +1,8 @@
-# React + TypeScript + Vite
+# Coo Note
+
+音声・動画ファイルから波形を生成し、PNG として書き出す Web アプリです。
+
+## 開発
 
 依存関係は **pnpm** で管理します。
 
@@ -6,76 +10,29 @@
 pnpm install
 pnpm dev
 pnpm build
+pnpm lint
 ```
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## GitHub へ公開する
 
-Currently, two official plugins are available:
+リポジトリは [mizushima1226](https://github.com/mizushima1226) 上に作成して push します。
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+1. **GitHub CLI** で `mizushima1226` アカウントにログインしていることを確認します（別アカウントのままだと作成できません）。
 
-## React Compiler
+   ```bash
+   gh auth status
+   gh auth login -h github.com
+   ```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+2. プロジェクト直下で、空のリポジトリを作ってそのまま push します。
 
-## Expanding the ESLint configuration
+   ```bash
+   cd /path/to/coo-note
+   gh repo create coo-note --public --source=. --remote=origin --push
+   ```
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+   すでに `origin` が設定されている場合は、GitHub 上で空の `coo-note` リポジトリを作成したうえで次を実行します。
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+   ```bash
+   git push -u origin main
+   ```
