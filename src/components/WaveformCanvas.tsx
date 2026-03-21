@@ -203,16 +203,16 @@ export const WaveformCanvas = forwardRef<HTMLCanvasElement, WaveformCanvasProps>
     ])
 
     return (
-      <div className="poster-canvas-stack">
+      <div className="relative inline-block max-w-full align-top leading-none drop-shadow-[0_5px_18px_rgba(124,58,237,0.18)]">
         <canvas
           ref={setCanvasRef}
-          className="poster-canvas poster-canvas--main"
+          className="block h-auto max-w-full align-top"
           width={POSTER_CANVAS_WIDTH}
           height={POSTER_CANVAS_HEIGHT}
         />
         <canvas
           ref={overlayRef}
-          className="poster-canvas poster-canvas--overlay"
+          className="pointer-events-none absolute left-0 top-0 block h-auto max-w-full align-top"
           width={POSTER_CANVAS_WIDTH}
           height={POSTER_CANVAS_HEIGHT}
           aria-hidden

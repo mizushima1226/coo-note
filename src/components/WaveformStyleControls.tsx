@@ -34,8 +34,8 @@ type WaveformStyleControlsProps = {
 export function WaveformStyleControls(props: WaveformStyleControlsProps) {
   const { disabled } = props
   return (
-    <div className="poster-waveform-style-block">
-      <div className="poster-waveform-style poster-waveform-style--pair">
+    <div className="mb-[0.85rem] flex flex-col gap-[0.65rem] last:mb-0">
+      <div className="grid gap-1 md:grid-cols-2 md:items-end md:gap-[0.85rem]">
         <StylePanelBackground
           backgroundColor={props.backgroundColor}
           onBackgroundColorChange={props.onBackgroundColorChange}

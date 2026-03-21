@@ -38,23 +38,38 @@ export function ExportButton({
     }
   }, [canvasRef, basename])
 
+  const btnClass = compact
+    ? 'box-border inline-flex min-h-[2.65rem] w-full min-w-0 cursor-pointer items-center justify-center rounded-lg border border-violet-800 bg-violet-600 px-4 py-0 text-[0.9rem] font-semibold text-white shadow-sm transition-[background,filter] duration-100 hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-45 disabled:filter-none max-[380px]:w-full min-[420px]:w-auto min-[420px]:min-w-[8.5rem]'
+    : 'cursor-pointer rounded-lg border border-violet-800 bg-violet-600 px-4 py-[0.45rem] text-[0.9rem] font-semibold text-white shadow-sm transition-[background,filter] duration-100 hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-45 disabled:filter-none'
+
   return (
-    <div className={compact ? 'poster-export poster-export--inline' : 'poster-export'}>
+    <div
+      className={
+        compact
+          ? 'flex flex-col items-stretch gap-1.5'
+          : 'flex flex-col items-stretch gap-1.5'
+      }
+    >
       {compact ? null : (
-        <h2 id="section-export" className="poster-settings-group-title">
+        <h2
+          id="section-export"
+          className="mb-0 text-[0.7rem] font-semibold uppercase tracking-[0.06em] text-stone-500"
+        >
           書き出し
         </h2>
       )}
       <button
         type="button"
-        className={compact ? 'poster-button poster-button--compact' : 'poster-button'}
+        className={btnClass}
         disabled={disabled}
         onClick={() => void handleClick()}
         aria-label={compact ? 'PNG で保存' : undefined}
       >
         PNG で保存
       </button>
-      {exportError ? <p className="poster-inline-error">{exportError}</p> : null}
+      {exportError ? (
+        <p className="m-0 text-[0.82rem] text-red-800">{exportError}</p>
+      ) : null}
     </div>
   )
 }

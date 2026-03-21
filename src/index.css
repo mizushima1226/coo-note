@@ -1,94 +1,67 @@
-:root {
-  color-scheme: light;
-  --text: #57534e;
-  --text-h: #1c1917;
-  --text-muted: #78716c;
-  --bg: #fafaf9;
-  --border: #e7e5e4;
-  --code-bg: #f5f5f4;
-  --accent: #7c3aed;
-  --accent-soft: rgba(124, 58, 237, 0.08);
-  --shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+@import 'tailwindcss';
 
-  --sans:
+@theme {
+  --font-sans:
     'Zen Maru Gothic', 'Hiragino Maru Gothic ProN', 'Yu Gothic UI', ui-rounded,
     system-ui, sans-serif;
-  --heading:
-    'Zen Maru Gothic', 'Hiragino Maru Gothic ProN', 'Yu Gothic UI', ui-rounded,
-    system-ui, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
-
-  font: 16px/145% var(--sans);
-  letter-spacing: 0.01em;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  --font-mono: ui-monospace, Consolas, monospace;
 }
 
-#root {
-  max-width: 100%;
-  margin: 0 auto;
-  box-sizing: border-box;
-  width: 100%;
+@keyframes design-sheet-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
-body {
-  margin: 0;
-  min-height: 100%;
-  min-height: 100svh;
-  background: var(--bg);
+@keyframes design-sheet-float-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 600;
-  color: var(--text-h);
-}
+@layer base {
+  :root {
+    color-scheme: light;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 
-h1 {
-  font-size: 1.5rem;
-  letter-spacing: -0.015em;
-  margin: 0 0 0.35rem;
-}
+  html {
+    @apply font-sans text-base leading-[145%] tracking-wide text-stone-600 bg-stone-50;
+  }
 
-h2 {
-  font-size: 1rem;
-  line-height: 1.25;
-  letter-spacing: -0.01em;
-  margin: 0 0 0.5rem;
-}
+  #root {
+    @apply mx-auto w-full max-w-full box-border;
+  }
 
-p {
-  margin: 0;
-}
+  body {
+    @apply m-0 min-h-svh bg-stone-50;
+  }
 
-.visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
+  h1,
+  h2 {
+    @apply font-sans font-semibold text-stone-900;
+  }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 6px;
-  color: var(--text-h);
-}
+  h1 {
+    @apply text-2xl tracking-tight mb-1.5;
+  }
 
-code {
-  font-size: 0.88em;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+  h2 {
+    @apply text-base leading-tight tracking-tight mb-2;
+  }
+
+  p {
+    @apply m-0;
+  }
 }
