@@ -36,3 +36,23 @@ pnpm lint
    ```bash
    git push -u origin main
    ```
+
+## GitHub Pages でホスティング
+
+**可能です。** `main` へ push すると GitHub Actions が `dist` をビルドして公開します（静的サイトのみ）。
+
+- 公開 URL（リポジトリ名が `coo-note` の場合）: **https://mizushima1226.github.io/coo-note/**
+
+初回だけ GitHub 上で次を設定してください。
+
+1. リポジトリの **Settings → Pages**
+2. **Build and deployment** の **Source** で **GitHub Actions** を選ぶ
+
+以降は `main` への push で自動デプロイされます。ローカルで Pages 用ビルドを試す場合:
+
+```bash
+VITE_BASE=/coo-note/ pnpm build
+pnpm preview
+```
+
+（`preview` はルート配下のため、実際の Pages とパスは異なります。本番相当は Actions のログで確認してください。）
