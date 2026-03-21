@@ -8,10 +8,11 @@ export type WaveformBin = {
 /** 波形のビジュアルテイスト */
 export type WaveformVisualStyle = 'classic' | 'oscilloscope' | 'roundedBars'
 
+/** UI 表示用（ドロップダウンなど）。キーの定義順が選択肢の並びになる */
 export const WAVEFORM_STYLE_LABELS: Record<WaveformVisualStyle, string> = {
-  classic: 'オリジナル（min / max）',
-  oscilloscope: 'ライン（オシロ風）',
-  roundedBars: 'バー（丸み・隙間）',
+  roundedBars: 'バー',
+  oscilloscope: 'オシロ',
+  classic: 'オリジナル',
 }
 
 export type WaveformData = WaveformBin[]

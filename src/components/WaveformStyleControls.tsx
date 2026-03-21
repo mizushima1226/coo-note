@@ -1,9 +1,8 @@
-import { WAVEFORM_STYLE_LABELS, type WaveformVisualStyle } from '../types/poster'
+import type { WaveformVisualStyle } from '../types/poster'
 import type { WaveformFillMode } from '../types/waveformStroke'
 
 type WaveformStyleControlsProps = {
   visualStyle: WaveformVisualStyle
-  onVisualStyleChange: (value: WaveformVisualStyle) => void
   backgroundColor: string
   onBackgroundColorChange: (value: string) => void
   labelColor: string
@@ -39,13 +38,8 @@ const BAR_HEIGHT_GAIN_MIN = 0.15
 const BAR_HEIGHT_GAIN_MAX = 2.5
 const BAR_HEIGHT_GAIN_STEP = 0.05
 
-const STYLE_OPTIONS = (
-  Object.entries(WAVEFORM_STYLE_LABELS) as [WaveformVisualStyle, string][]
-).map(([value, label]) => ({ value, label }))
-
 export function WaveformStyleControls({
   visualStyle,
-  onVisualStyleChange,
   backgroundColor,
   onBackgroundColorChange,
   labelColor,
@@ -75,28 +69,6 @@ export function WaveformStyleControls({
 
   return (
     <div className="poster-waveform-style-block">
-      <div className="poster-field">
-        <label className="poster-label" htmlFor="poster-visual-style">
-          ビジュアルスタイル
-        </label>
-        <select
-          id="poster-visual-style"
-          className="poster-select"
-          value={visualStyle}
-          disabled={disabled}
-          onChange={(e) => onVisualStyleChange(e.target.value as WaveformVisualStyle)}
-        >
-          {STYLE_OPTIONS.map(({ value, label }) => (
-            <option key={value} value={value}>
-              {label}
-            </option>
-          ))}
-        </select>
-        <p className="poster-style-hint">
-          スタイルを選ぶたびに、そのテイスト向けの配色・太さが適用されます（色や隙間はいつでも変更できます）。
-        </p>
-      </div>
-
       <div className="poster-waveform-style poster-waveform-style--pair">
         <div className="poster-field poster-field--compact">
           <label className="poster-label" htmlFor="poster-bg-color">

@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ExportButton } from './components/ExportButton'
 import { FileUploader } from './components/FileUploader'
-import { PosterControls } from './components/PosterControls'
 import {
   POSTER_CANVAS_WIDTH,
   WaveformCanvas,
@@ -18,18 +17,17 @@ import './App.css'
 
 function App() {
   const [file, setFile] = useState<File | null>(null)
-  const [title, setTitle] = useState('')
-  const [date, setDate] = useState('')
-  const [visualStyle, setVisualStyle] = useState<WaveformVisualStyle>('classic')
+  const [visualStyle, setVisualStyle] = useState<WaveformVisualStyle>('roundedBars')
   const [backgroundColor, setBackgroundColor] = useState('#ffffff')
   const [labelColor, setLabelColor] = useState('#000000')
-  const [waveformFillMode, setWaveformFillMode] = useState<WaveformFillMode>('solid')
+  const [waveformFillMode, setWaveformFillMode] =
+    useState<WaveformFillMode>('solid')
   const [waveformColor, setWaveformColor] = useState('#000000')
-  const [waveformGradientStart, setWaveformGradientStart] = useState('#7c3aed')
+  const [waveformGradientStart, setWaveformGradientStart] = useState('#a855f7')
   const [waveformGradientEnd, setWaveformGradientEnd] = useState('#22d3ee')
   const [waveformGradientAngleDeg, setWaveformGradientAngleDeg] = useState(0)
-  const [waveformLineWidth, setWaveformLineWidth] = useState(1)
-  const [barGap, setBarGap] = useState(3)
+  const [waveformLineWidth, setWaveformLineWidth] = useState(5)
+  const [barGap, setBarGap] = useState(4)
   const [barHeightGain, setBarHeightGain] = useState(1)
 
   const [mediaCurrentTime, setMediaCurrentTime] = useState(0)
@@ -124,16 +122,6 @@ function App() {
   const { audioBuffer, loading, error } = useAudioDecoder(file)
   const { waveformData } = useWaveformData(audioBuffer, POSTER_CANVAS_WIDTH)
 
-  const statusLine = useMemo(() => {
-    if (!file) return null
-    if (loading) return 'デコード中…'
-    if (error) return null
-    if (audioBuffer) {
-      return `${audioBuffer.duration.toFixed(2)} 秒 · ${audioBuffer.sampleRate} Hz · ${audioBuffer.numberOfChannels} ch`
-    }
-    return null
-  }, [file, loading, error, audioBuffer])
-
   const canvasPlaceholder = error
     ? 'デコードできませんでした（別の形式を試してください）'
     : loading
@@ -142,105 +130,173 @@ function App() {
 
   const canExport = Boolean(waveformData?.length && !loading)
 
+  const exportBasename = useMemo(() => {
+    if (!file?.name) return ''
+    return file.name.replace(/\.[^/.]+$/i, '')
+  }, [file])
+
+  const hasFile = Boolean(file)
+
   return (
-    <div className="poster-app">
-      {objectUrl ? (
-        <audio
-          key={objectUrl}
-          ref={audioRef}
-          src={objectUrl}
-          preload="metadata"
-          className="poster-audio-hidden"
-          aria-label="波形と連動するプレビュー音声"
-        />
-      ) : null}
-
-      <header className="poster-header">
-        <h1 className="poster-title-page">波形ポスター</h1>
-        <p className="poster-lead">音声 / 動画から波形を生成し、PNG で保存します。</p>
-      </header>
-
-      <FileUploader onFile={setFile} disabled={loading} />
-
-      <PosterControls
-        title={title}
-        date={date}
-        onTitleChange={setTitle}
-        onDateChange={setDate}
-        disabled={loading}
-      />
-
-      <WaveformStyleControls
-        visualStyle={visualStyle}
-        onVisualStyleChange={handleVisualStyleChange}
-        backgroundColor={backgroundColor}
-        onBackgroundColorChange={setBackgroundColor}
-        labelColor={labelColor}
-        onLabelColorChange={setLabelColor}
-        waveformFillMode={waveformFillMode}
-        onWaveformFillModeChange={setWaveformFillMode}
-        waveformColor={waveformColor}
-        onWaveformColorChange={setWaveformColor}
-        waveformGradientStart={waveformGradientStart}
-        onWaveformGradientStartChange={setWaveformGradientStart}
-        waveformGradientEnd={waveformGradientEnd}
-        onWaveformGradientEndChange={setWaveformGradientEnd}
-        waveformGradientAngleDeg={waveformGradientAngleDeg}
-        onWaveformGradientAngleDegChange={setWaveformGradientAngleDeg}
-        waveformLineWidth={waveformLineWidth}
-        onWaveformLineWidthChange={setWaveformLineWidth}
-        barGap={barGap}
-        onBarGapChange={setBarGap}
-        barHeightGain={barHeightGain}
-        onBarHeightGainChange={setBarHeightGain}
-        disabled={loading}
-      />
-
-      {error ? (
-        <div className="poster-banner poster-banner--error" role="alert">
-          {error}
+    <div className={hasFile ? 'poster-shell' : 'poster-shell poster-shell--splash'}>
+      {!hasFile ? (
+        <div className="poster-splash-layout">
+          <header className="poster-header-min poster-header-min--splash">
+            <h1 className="poster-title-page">波形ポスター</h1>
+          </header>
+          <div className="poster-splash-body">
+            <div className="poster-splash">
+              <FileUploader
+                variant="splash"
+                onFile={setFile}
+                disabled={loading}
+                currentFile={null}
+              />
+            </div>
+          </div>
         </div>
-      ) : null}
+      ) : (
+        <div className="poster-app">
+          {objectUrl ? (
+            <audio
+              key={objectUrl}
+              ref={audioRef}
+              src={objectUrl}
+              preload="metadata"
+              className="poster-audio-hidden"
+              aria-label="波形と連動するプレビュー音声"
+            />
+          ) : null}
 
-      {loading ? (
-        <div className="poster-banner poster-banner--loading" aria-live="polite">
-          デコードしています…
+          <header className="poster-header-min">
+            <h1 className="poster-title-page">波形ポスター</h1>
+            <p className="poster-lead">
+              音声 / 動画から波形を生成し、PNG で保存します。
+            </p>
+          </header>
+
+          <div className="poster-file-toolbar-wrap">
+            <div className="poster-file-toolbar">
+              <FileUploader
+                variant="compact"
+                onFile={setFile}
+                disabled={loading}
+                currentFile={file}
+              />
+              <ExportButton
+                canvasRef={canvasRef}
+                basename={exportBasename}
+                disabled={!canExport}
+                compact
+              />
+            </div>
+          </div>
+
+          <section className="poster-stage" aria-label="波形プレビュー">
+            {error ? (
+              <div className="poster-banner poster-banner--error" role="alert">
+                {error}
+              </div>
+            ) : null}
+            {loading ? (
+              <div className="poster-banner poster-banner--loading" aria-live="polite">
+                デコードしています…
+              </div>
+            ) : null}
+
+            <div className="poster-canvas-viewport">
+              <div className="poster-preview-frame">
+                <div className="poster-canvas-pop">
+                  <div className="poster-canvas-pop-glow" aria-hidden />
+                  <div className="poster-canvas-pop-inner">
+                    <div className="poster-canvas-wrap">
+                      <WaveformCanvas
+                        ref={canvasRef}
+                        waveformData={error ? null : waveformData}
+                        title=""
+                        date=""
+                        visualStyle={visualStyle}
+                        backgroundColor={backgroundColor}
+                        labelColor={labelColor}
+                        waveformStroke={waveformStroke}
+                        waveformLineWidth={waveformLineWidth}
+                        barGap={barGap}
+                        barHeightGain={barHeightGain}
+                        playbackEffect={playbackEffect}
+                        isPlaying={isPlaying}
+                        placeholderMessage={canvasPlaceholder}
+                      />
+                    </div>
+                  </div>
+                </div>
+                {objectUrl ? (
+                  <div className="poster-transport-fab-wrap">
+                    <WaveformPlaybackControls
+                      variant="fab"
+                      audioRef={audioRef}
+                      currentTime={mediaCurrentTime}
+                      duration={mediaDuration}
+                      isPlaying={isPlaying}
+                      playbackEffect={playbackEffect}
+                      onPlaybackEffectChange={setPlaybackEffect}
+                      disabled={loading}
+                    />
+                  </div>
+                ) : null}
+              </div>
+            </div>
+
+            <div className="poster-stage-bar">
+              {objectUrl ? (
+                <WaveformPlaybackControls
+                  variant="meta"
+                  audioRef={audioRef}
+                  currentTime={mediaCurrentTime}
+                  duration={mediaDuration}
+                  isPlaying={isPlaying}
+                  playbackEffect={playbackEffect}
+                  onPlaybackEffectChange={setPlaybackEffect}
+                  visualStyle={visualStyle}
+                  onVisualStyleChange={handleVisualStyleChange}
+                  disabled={loading}
+                />
+              ) : (
+                <span className="poster-stage-bar-hint">読み込み中…</span>
+              )}
+            </div>
+          </section>
+
+          <section className="poster-settings" aria-label="設定">
+            <div className="poster-settings-group">
+              <h2 className="poster-settings-group-title">デザイン</h2>
+              <WaveformStyleControls
+                visualStyle={visualStyle}
+                backgroundColor={backgroundColor}
+                onBackgroundColorChange={setBackgroundColor}
+                labelColor={labelColor}
+                onLabelColorChange={setLabelColor}
+                waveformFillMode={waveformFillMode}
+                onWaveformFillModeChange={setWaveformFillMode}
+                waveformColor={waveformColor}
+                onWaveformColorChange={setWaveformColor}
+                waveformGradientStart={waveformGradientStart}
+                onWaveformGradientStartChange={setWaveformGradientStart}
+                waveformGradientEnd={waveformGradientEnd}
+                onWaveformGradientEndChange={setWaveformGradientEnd}
+                waveformGradientAngleDeg={waveformGradientAngleDeg}
+                onWaveformGradientAngleDegChange={setWaveformGradientAngleDeg}
+                waveformLineWidth={waveformLineWidth}
+                onWaveformLineWidthChange={setWaveformLineWidth}
+                barGap={barGap}
+                onBarGapChange={setBarGap}
+                barHeightGain={barHeightGain}
+                onBarHeightGainChange={setBarHeightGain}
+                disabled={loading}
+              />
+            </div>
+          </section>
         </div>
-      ) : null}
-
-      {statusLine ? <p className="poster-meta">{statusLine}</p> : null}
-
-      <div className="poster-canvas-wrap">
-        {objectUrl ? (
-          <WaveformPlaybackControls
-            audioRef={audioRef}
-            currentTime={mediaCurrentTime}
-            duration={mediaDuration}
-            isPlaying={isPlaying}
-            playbackEffect={playbackEffect}
-            onPlaybackEffectChange={setPlaybackEffect}
-            disabled={loading}
-          />
-        ) : null}
-        <WaveformCanvas
-          ref={canvasRef}
-          waveformData={error ? null : waveformData}
-          title={title}
-          date={date}
-          visualStyle={visualStyle}
-          backgroundColor={backgroundColor}
-          labelColor={labelColor}
-          waveformStroke={waveformStroke}
-          waveformLineWidth={waveformLineWidth}
-          barGap={barGap}
-          barHeightGain={barHeightGain}
-          playbackEffect={playbackEffect}
-          isPlaying={isPlaying}
-          placeholderMessage={canvasPlaceholder}
-        />
-      </div>
-
-      <ExportButton canvasRef={canvasRef} title={title} disabled={!canExport} />
+      )}
     </div>
   )
 }

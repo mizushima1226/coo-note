@@ -3,8 +3,11 @@ import { downloadCanvasAsPng } from '../utils/exportCanvas'
 
 type ExportButtonProps = {
   canvasRef: RefObject<HTMLCanvasElement | null>
-  title: string
+  /** PNG のベース名（拡張子なし）。空なら waveform */
+  basename?: string
   disabled?: boolean
+  /** 見出しなし・ツールバー用（プレビュー横に並べる） */
+  compact?: boolean
 }
 
 function safeFilenamePart(s: string): string {
@@ -12,7 +15,12 @@ function safeFilenamePart(s: string): string {
   return t || 'waveform'
 }
 
-export function ExportButton({ canvasRef, title, disabled }: ExportButtonProps) {
+export function ExportButton({
+  canvasRef,
+  basename = '',
+  disabled,
+  compact = false,
+}: ExportButtonProps) {
   const [exportError, setExportError] = useState<string | null>(null)
 
   const handleClick = useCallback(async () => {
@@ -23,20 +31,26 @@ export function ExportButton({ canvasRef, title, disabled }: ExportButtonProps) 
       return
     }
     try {
-      const name = `${safeFilenamePart(title)}.png`
+      const name = `${safeFilenamePart(basename)}.png`
       await downloadCanvasAsPng(canvas, name)
     } catch {
       setExportError('PNG の保存に失敗しました。')
     }
-  }, [canvasRef, title])
+  }, [canvasRef, basename])
 
   return (
-    <div className="poster-export">
+    <div className={compact ? 'poster-export poster-export--inline' : 'poster-export'}>
+      {compact ? null : (
+        <h2 id="section-export" className="poster-settings-group-title">
+          書き出し
+        </h2>
+      )}
       <button
         type="button"
-        className="poster-button"
+        className={compact ? 'poster-button poster-button--compact' : 'poster-button'}
         disabled={disabled}
         onClick={() => void handleClick()}
+        aria-label={compact ? 'PNG で保存' : undefined}
       >
         PNG で保存
       </button>

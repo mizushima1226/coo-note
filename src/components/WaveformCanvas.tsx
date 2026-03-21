@@ -37,9 +37,13 @@ function drawPlaceholder(
   height: number,
   message: string,
 ) {
-  ctx.fillStyle = '#f0f0f0'
+  const g = ctx.createLinearGradient(0, 0, width, height)
+  g.addColorStop(0, '#faf5ff')
+  g.addColorStop(0.45, '#f0f9ff')
+  g.addColorStop(1, '#fdf4ff')
+  ctx.fillStyle = g
   ctx.fillRect(0, 0, width, height)
-  ctx.fillStyle = '#666666'
+  ctx.fillStyle = '#78716c'
   ctx.font = '15px system-ui, sans-serif'
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
