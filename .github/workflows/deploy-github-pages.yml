@@ -1,4 +1,7 @@
 # https://docs.github.com/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site
+#
+# deploy が 404 になる場合: リポジトリ Settings → Pages → Source を「GitHub Actions」にすること
+# https://github.com/mizushima1226/coo-note/settings/pages
 name: Deploy to GitHub Pages
 
 on:

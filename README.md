@@ -43,12 +43,25 @@ pnpm lint
 
 - 公開 URL（リポジトリ名が `coo-note` の場合）: **https://mizushima1226.github.io/coo-note/**
 
-初回だけ GitHub 上で次を設定してください。
+### 初回の必須設定（これがないと deploy が失敗します）
 
-1. リポジトリの **Settings → Pages**
-2. **Build and deployment** の **Source** で **GitHub Actions** を選ぶ
+ビルド（`build` ジョブ）は成功しても、**GitHub Pages の公開元が「GitHub Actions」になっていない**と、`deploy` ジョブで次のようなエラーになります。
 
-以降は `main` への push で自動デプロイされます。ローカルで Pages 用ビルドを試す場合:
+- `HttpError: Not Found`
+- `Failed to create deployment (status: 404)`
+- `Ensure GitHub Pages has been enabled`（ログに表示される案内）
+
+対処は **リポジトリの Pages 設定でソースを切り替える**ことです。
+
+1. **[Settings → Pages](https://github.com/mizushima1226/coo-note/settings/pages)** を開く
+2. **Build and deployment** の **Source** を、デフォルトの **Deploy from a branch** ではなく **GitHub Actions** に変更する  
+   （ドロップダウンから **GitHub Actions** を選ぶ）
+
+保存後、**Actions** タブで失敗したワークフローを **Re-run failed jobs** するか、`main` に空コミットを push して再実行してください。
+
+以降は `main` への push だけで自動デプロイされます。
+
+### ローカルで Pages 用ビルドを試す
 
 ```bash
 VITE_BASE=/coo-note/ pnpm build
