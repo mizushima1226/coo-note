@@ -10,6 +10,7 @@ import { DesignParametersSheet } from './components/DesignParametersSheet'
 import { useAudioDecoder } from './hooks/useAudioDecoder'
 import { useObjectUrl } from './hooks/useObjectUrl'
 import { useWaveformData } from './hooks/useWaveformData'
+import { isProbablyVideoFile } from './utils/decodeAudioFromFile'
 import type { WaveformVisualStyle } from './types/poster'
 import type { WaveformFillMode, WaveformStrokeStyle } from './types/waveformStroke'
 
@@ -214,7 +215,12 @@ function App() {
                 className="mb-2 rounded-lg border border-stone-200 bg-slate-50 px-[0.65rem] py-[0.55rem] text-[0.85rem] leading-snug text-stone-900"
                 aria-live="polite"
               >
-                デコードしています…
+                <span className="block">デコードしています…</span>
+                {file && isProbablyVideoFile(file) ? (
+                  <span className="mt-1 block text-[0.78rem] leading-snug text-stone-500">
+                    動画は再生しながら音声を取り込みます。長いほど完了まで時間がかかります（画面を閉じないでください）。
+                  </span>
+                ) : null}
               </div>
             ) : null}
 

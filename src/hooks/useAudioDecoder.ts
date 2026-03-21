@@ -1,17 +1,8 @@
 import { useEffect, useState } from 'react'
-
-function decodeErrorMessage(err: unknown): string {
-  if (err instanceof DOMException) {
-    if (err.name === 'EncodingError') {
-      return 'このファイルはブラウザでデコードできません（動画コンテナや未対応コーデックの可能性があります）。音声ファイル（例: WAV / MP3）を試してください。'
-    }
-    return err.message || 'デコードに失敗しました。'
-  }
-  if (err instanceof Error) {
-    return err.message
-  }
-  return 'デコードに失敗しました。'
-}
+import {
+  decodeErrorMessage,
+  decodeFileToAudioBuffer,
+} from '../utils/decodeAudioFromFile'
 
 export type UseAudioDecoderResult = {
   audioBuffer: AudioBuffer | null
@@ -20,7 +11,8 @@ export type UseAudioDecoderResult = {
 }
 
 /**
- * File を ArrayBuffer 経由で decodeAudioData し AudioBuffer を返す。
+ * File を AudioBuffer にデコード。
+ * decodeAudioData が使えないコンテナ（iPhone の MOV 等）はメディア再生経由で取り込む。
  */
 export function useAudioDecoder(file: File | null): UseAudioDecoderResult {
   const [audioBuffer, setAudioBuffer] = useState<AudioBuffer | null>(null)
@@ -35,23 +27,18 @@ export function useAudioDecoder(file: File | null): UseAudioDecoderResult {
       return
     }
 
+    const ac = new AbortController()
+    const { signal } = ac
     let cancelled = false
     setLoading(true)
     setError(null)
-    setAudioBuffer(null) // 新しいファイル読み込み開始時は前の波形を消す
+    setAudioBuffer(null)
 
     ;(async () => {
       try {
-        const raw = await file.arrayBuffer()
-        const copy = raw.slice(0)
-        const ctx = new AudioContext()
-        try {
-          const decoded = await ctx.decodeAudioData(copy)
-          if (!cancelled) {
-            setAudioBuffer(decoded)
-          }
-        } finally {
-          await ctx.close().catch(() => {})
+        const decoded = await decodeFileToAudioBuffer(file, signal)
+        if (!cancelled) {
+          setAudioBuffer(decoded)
         }
       } catch (e) {
         if (!cancelled) {
@@ -67,6 +54,7 @@ export function useAudioDecoder(file: File | null): UseAudioDecoderResult {
 
     return () => {
       cancelled = true
+      ac.abort()
     }
   }, [file])
 
