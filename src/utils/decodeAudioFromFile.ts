@@ -47,6 +47,78 @@ function waitLoadedMetadata(el: HTMLMediaElement): Promise<void> {
   })
 }
 
+/** 再生終了を ended / currentTime / タイムアウトのいずれかで検知（iOS で ended だけだと進まないことがある） */
+function waitPlaybackEnded(
+  el: HTMLMediaElement,
+  durationSec: number,
+  signal: AbortSignal,
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    let finished = false
+    let intervalId = 0
+    let timeoutId = 0
+
+    const cleanup = () => {
+      if (intervalId) clearInterval(intervalId)
+      if (timeoutId) clearTimeout(timeoutId)
+      el.removeEventListener('ended', onEnded)
+      el.removeEventListener('error', onErr)
+      signal.removeEventListener('abort', onAbort)
+    }
+
+    const done = () => {
+      if (finished) return
+      finished = true
+      cleanup()
+      resolve()
+    }
+
+    const fail = (err: Error) => {
+      if (finished) return
+      finished = true
+      try {
+        el.pause()
+      } catch {
+        /* ignore */
+      }
+      cleanup()
+      reject(err)
+    }
+
+    const onEnded = () => done()
+
+    const onErr = () => fail(new Error('再生が中断されました。'))
+
+    const onAbort = () =>
+      fail(new DOMException('Aborted', 'AbortError'))
+
+    el.addEventListener('ended', onEnded)
+    el.addEventListener('error', onErr)
+    signal.addEventListener('abort', onAbort)
+
+    intervalId = window.setInterval(() => {
+      if (el.ended) {
+        done()
+        return
+      }
+      const d = el.duration
+      if (Number.isFinite(d) && d > 0 && el.currentTime >= d - 0.08) {
+        done()
+      }
+    }, 40)
+
+    const wallMs = Math.ceil(durationSec * 1000) + 20_000
+    timeoutId = window.setTimeout(() => {
+      fail(
+        new DOMException(
+          '再生の完了を確認できませんでした。別の動画形式や短いクリップを試してください。',
+          'TimeoutError',
+        ),
+      )
+    }, Math.min(Math.max(wallMs, 45_000), 600_000))
+  })
+}
+
 /**
  * MediaElement から再生しながら PCM を取り込み（1x 再生。長い動画はその分時間がかかる）
  */
@@ -66,7 +138,9 @@ async function decodeViaMediaElement(
 
   if (kind === 'video') {
     const v = el as HTMLVideoElement
-    v.muted = true
+    // iOS Safari は muted だと音声トラックを Web Audio に載せないことがある（デコードが終わらない原因になる）
+    v.muted = false
+    v.volume = 0
     v.playsInline = true
     v.setAttribute('playsinline', '')
     v.setAttribute('webkit-playsinline', '')
@@ -140,11 +214,11 @@ async function decodeViaMediaElement(
       )
     }
 
-    await new Promise<void>((resolve, reject) => {
-      el.onended = () => resolve()
-      el.onerror = () => reject(new Error('再生が中断されました。'))
-    })
+    await waitPlaybackEnded(el, duration, signal)
 
+    el.pause()
+    // 終了直後にまだ ScriptProcessor のバッファが残っていることがある
+    await new Promise<void>((r) => setTimeout(r, 200))
     signal.removeEventListener('abort', onAbort)
     processor.disconnect()
     source.disconnect()
@@ -213,6 +287,9 @@ export function decodeErrorMessage(err: unknown): string {
     if (err.name === 'NotAllowedError') {
       return err.message
     }
+    if (err.name === 'TimeoutError' && err.message) {
+      return err.message
+    }
     if (err.name === 'AbortError') {
       return '読み込みがキャンセルされました。'
     }
@@ -226,28 +303,38 @@ export function decodeErrorMessage(err: unknown): string {
 
 /**
  * 動画・音声ファイルを AudioBuffer に変換
+ *
+ * 動画は Safari で decodeAudioData が失敗どころか長時間ブロックすることがあるため、
+ * 先にメディア再生経路を使う。
  */
 export async function decodeFileToAudioBuffer(
   file: File,
   signal: AbortSignal,
 ): Promise<AudioBuffer> {
+  if (isProbablyVideoFile(file)) {
+    try {
+      return await decodeViaMediaElement(file, 'video', signal)
+    } catch (eVideo) {
+      if (signal.aborted) {
+        throw new DOMException('Aborted', 'AbortError')
+      }
+      try {
+        return await decodeViaMediaElement(file, 'audio', signal)
+      } catch {
+        try {
+          return await tryDecodeAudioData(file, signal)
+        } catch {
+          throw eVideo
+        }
+      }
+    }
+  }
+
   try {
     return await tryDecodeAudioData(file, signal)
   } catch {
     if (signal.aborted) {
       throw new DOMException('Aborted', 'AbortError')
-    }
-    const video = isProbablyVideoFile(file)
-    if (video) {
-      try {
-        return await decodeViaMediaElement(file, 'video', signal)
-      } catch (e2) {
-        try {
-          return await decodeViaMediaElement(file, 'audio', signal)
-        } catch {
-          throw e2
-        }
-      }
     }
     return await decodeViaMediaElement(file, 'audio', signal)
   }
