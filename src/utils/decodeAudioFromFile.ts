@@ -276,6 +276,30 @@ async function tryDecodeAudioData(
   }
 }
 
+/** 動画で decodeAudioData が固まるブラウザ向け。成功時は高速、タイムアウト後はメディア経路へ。 */
+async function tryDecodeAudioDataWithTimeout(
+  file: File,
+  signal: AbortSignal,
+  timeoutMs: number,
+): Promise<AudioBuffer> {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => {
+      reject(new DOMException('decodeAudioData timeout', 'TimeoutError'))
+    }, timeoutMs)
+  })
+  try {
+    return await Promise.race([
+      tryDecodeAudioData(file, signal),
+      timeoutPromise,
+    ])
+  } finally {
+    if (timeoutId !== undefined) clearTimeout(timeoutId)
+  }
+}
+
+const VIDEO_DECODE_AUDIO_DATA_TIMEOUT_MS = 12_000
+
 export function decodeErrorMessage(err: unknown): string {
   if (err instanceof DOMException) {
     if (err.name === 'NotSupportedError' && err.message) {
@@ -304,8 +328,8 @@ export function decodeErrorMessage(err: unknown): string {
 /**
  * 動画・音声ファイルを AudioBuffer に変換
  *
- * 動画は Safari で decodeAudioData が失敗どころか長時間ブロックすることがあるため、
- * 先にメディア再生経路を使う。
+ * 動画はデスクトップでは decodeAudioData が速く通ることが多いので先に試す。
+ * Safari 等で固まる場合はタイムアウト後にメディア再生経路へフォールバックする。
  */
 export async function decodeFileToAudioBuffer(
   file: File,
@@ -313,16 +337,20 @@ export async function decodeFileToAudioBuffer(
 ): Promise<AudioBuffer> {
   if (isProbablyVideoFile(file)) {
     try {
-      return await decodeViaMediaElement(file, 'video', signal)
-    } catch (eVideo) {
+      return await tryDecodeAudioDataWithTimeout(
+        file,
+        signal,
+        VIDEO_DECODE_AUDIO_DATA_TIMEOUT_MS,
+      )
+    } catch {
       if (signal.aborted) {
         throw new DOMException('Aborted', 'AbortError')
       }
       try {
-        return await decodeViaMediaElement(file, 'audio', signal)
-      } catch {
+        return await decodeViaMediaElement(file, 'video', signal)
+      } catch (eVideo) {
         try {
-          return await tryDecodeAudioData(file, signal)
+          return await decodeViaMediaElement(file, 'audio', signal)
         } catch {
           throw eVideo
         }
